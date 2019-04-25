@@ -5,7 +5,7 @@ import static com.github.dwolverton.consoletester.TestUtil.assertFails;
 import org.junit.jupiter.api.Test;
 
 import com.github.dwolverton.consoletester.IOTester;
-import com.github.dwolverton.consoletester.junit.GradingTest;
+import com.github.dwolverton.consoletester.junit5.GradingTest;
 
 @GradingTest
 class HungProgramTest {

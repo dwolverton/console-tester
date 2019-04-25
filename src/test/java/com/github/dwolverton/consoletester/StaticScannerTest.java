@@ -3,7 +3,7 @@ package com.github.dwolverton.consoletester;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.github.dwolverton.consoletester.junit.GradingTest;
+import com.github.dwolverton.consoletester.junit5.GradingTest;
 
 @GradingTest
 class StaticScannerTest {

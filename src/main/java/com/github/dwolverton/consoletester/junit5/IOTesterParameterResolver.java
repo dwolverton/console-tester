@@ -1,4 +1,4 @@
-package com.github.dwolverton.consoletester.junit;
+package com.github.dwolverton.consoletester.junit5;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;

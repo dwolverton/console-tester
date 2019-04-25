@@ -9,6 +9,21 @@ import java.util.function.Consumer;
 import com.github.dwolverton.consoletester.match.Found;
 import com.github.dwolverton.consoletester.match.Match;
 
+/**
+ * A Group is a collection of output and input expectations and actions
+ * that are allowed to occur in any order.
+ * 
+ * <p>Groups are constructed using method chaining and the builder pattern
+ * to add expectations and actions. Once all have been added run the {@link #exec()} method.
+ * 
+ * <p>The best way to create a group is using the {@link IOTester#group()} method of IOTester. For example,
+ * <pre>{@code
+ *   io.group()
+ *     .out("Java")
+ *     .maybePrompt("lang?", "Java")
+ *     .exec();
+ * }</pre>
+ */
 public class Group {
 	
 	private IOTester io;

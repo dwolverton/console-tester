@@ -8,7 +8,7 @@ import java.util.Scanner;
 import org.junit.jupiter.api.Test;
 
 import com.github.dwolverton.consoletester.IOTester;
-import com.github.dwolverton.consoletester.junit.GradingTest;
+import com.github.dwolverton.consoletester.junit5.GradingTest;
 import com.github.dwolverton.consoletester.match.Found;
 import com.github.dwolverton.consoletester.match.Match;
 
