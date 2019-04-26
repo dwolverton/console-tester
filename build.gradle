@@ -9,8 +9,10 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id 'maven-publish'
 }
 
+group = 'com.github.dwolverton'
 version = '0.2.0'
 
 repositories {
@@ -29,5 +31,33 @@ dependencies {
 test {
     useJUnitPlatform {
     	excludeTags 'TODO'
+    }
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        myLibrary(MavenPublication) {
+            from components.java
+            
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'myRepo'
+            url = "file://${buildDir}/repo"
+        }
     }
 }
