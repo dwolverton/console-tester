@@ -44,6 +44,7 @@ task javadocJar(type: Jar) {
     from javadoc.destinationDir
 }
 
+// Work in progress -- https://docs.gradle.org/current/userguide/publishing_overview.html
 publishing {
     publications {
         myLibrary(MavenPublication) {
