@@ -417,7 +417,7 @@ public class IOTester {
 			return fail("Expected console output " + matcher.getExpectedMessage() + " but " + block.getEndType().getActualMessage() + ".");
 		} else {
 			if (isDisallowedBefore(info.getEnd())) {
-				return fail("Expected console output " + matcher.getExpectedMessage() + " but found output " + Match.any(disallowed.toArray(Match[]::new)).getExpectedMessage());
+				return fail("Expected console output " + matcher.getExpectedMessage() + " but found output " + Match.any(disallowed.stream().toArray(Match[]::new)).getExpectedMessage());
 			}
 			outputOffset = info.getEnd();
 			return new Found(block.getOutput(), info);
@@ -436,7 +436,7 @@ public class IOTester {
 			MatchInfo infoInLine = matcher.match(line, 0).orElse(null);
 			if (infoInLine != null) {
 				if (isDisallowedBefore(infoInLine.getEnd() + lineStart)) {
-					return fail("Expected console output line " + matcher.getExpectedMessage() + " but found output " + Match.any(disallowed.toArray(Match[]::new)).getExpectedMessage());
+					return fail("Expected console output line " + matcher.getExpectedMessage() + " but found output " + Match.any(disallowed.stream().toArray(Match[]::new)).getExpectedMessage());
 				}
 				
 				MatchInfo info = new MatchInfo(infoInLine.getMatch(),
@@ -454,7 +454,7 @@ public class IOTester {
 		if (disallowed.isEmpty()) {
 			return false;
 		}
-		Optional<MatchInfo> disallowedInfo = Match.any(disallowed.toArray(Match[]::new)).match(block.getOutput(), outputOffset);
+		Optional<MatchInfo> disallowedInfo = Match.any(disallowed.stream().toArray(Match[]::new)).match(block.getOutput(), outputOffset);
 		return disallowedInfo.isPresent() && disallowedInfo.get().getStart() < position;
 	}
 	
