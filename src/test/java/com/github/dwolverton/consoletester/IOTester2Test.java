@@ -557,8 +557,39 @@ class IOTester2Test {
 		io.end();
 	}
 	
+	@Test
+	void testMultipleRuns(IOTester io) {
+		io.start(() -> {
+			Scanner scnr = new Scanner(System.in);
+			System.out.println("What's your name?");
+			String name = scnr.next();
+			System.out.println("Hi " + name);
+			scnr.close();
+		});
+		
+		io.out("What's your name?");
+		io.in("David");
+		io.out("Hi David");
+		io.end();
+		
+		io.start(() -> {
+			Scanner scnr = new Scanner(System.in);
+			System.out.println("What's your name?");
+			String name = scnr.next();
+			System.out.println("Hi " + name);
+			scnr.close();
+		});
+		
+		io.out("What's your name?");
+		io.in("Mariah");
+		io.out("Hi Mariah");
+		io.end();
+	}
+	
 	
 	// maybeIn
+	// disallow to end
+	// group.lineOut
 	
 	// Test prompt()
 	// too much data to stdout

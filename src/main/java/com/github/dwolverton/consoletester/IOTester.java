@@ -20,8 +20,6 @@ public class IOTester {
 	
 	private static final Pattern LINE_SEPARATOR_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
 	
-	private Runner runner = new Runner();
-	
 	private Set<Match> disallowed = new HashSet<>();
 	
 	private IOBlock block;
@@ -50,7 +48,7 @@ public class IOTester {
 	 *        For example, <code>io.start(() -> System.out.println("Hello!"));</code>
 	 */
 	public void start(Runnable codeToTest) {
-		runner.start(codeToTest);
+		Runner.start(codeToTest);
 		nextBlock();
 	}
 	
@@ -173,7 +171,7 @@ public class IOTester {
 		if (block.getEndType() != BlockEndType.INPUT) {
 			fail("Expected user to be able to enter <" + input + "> but " + block.getEndType().getActualMessage() + ".");
 		}
-		runner.in(input);
+		Runner.in(input);
 		nextBlock();
 	}
 	
@@ -394,7 +392,7 @@ public class IOTester {
 	 * Run to the end expecting no more input required.
 	 */
 	public void end() {
-		runner.terminate(false);
+		Runner.terminate(false);
 		if (block.getEndType() != BlockEndType.END) {
 			fail("Expected end of program but " + block.getEndType().getActualMessage() + ".");
 		}
@@ -404,7 +402,7 @@ public class IOTester {
 	 * Terminate the program.
 	 */
 	public void skipToEnd() {
-		runner.terminate(true);
+		Runner.terminate(true);
 	}
 	
 	/**
@@ -459,7 +457,7 @@ public class IOTester {
 	}
 	
 	private void nextBlock() {
-		block = runner.nextBlock();
+		block = Runner.nextBlock();
 		outputOffset = 0;
 	}
 	

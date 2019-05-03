@@ -14,21 +14,26 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Runner {
+	
+	private Runner() {}
 
 	private static PrintStream originalStdOut = System.out;
 	private static InputStream originalStdIn = System.in;
 
-	private BlockingQueue<IOBlock> queue = new LinkedBlockingQueue<>();
+	private static BlockingQueue<IOBlock> queue = new LinkedBlockingQueue<>();
 
-	private ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-	private PrintStream stdOutPrintStream;
-	private PipedInputStream stdInInputStream;
-	private PipedOutputStream stdInOutputStream;
-	private PrintStream stdInPrintStream;
-	private Thread thread;
-	private boolean suppressStackTrace;
+	private static ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+	private static PrintStream stdOutPrintStream;
+	private static PipedInputStream stdInInputStream;
+	private static PipedOutputStream stdInOutputStream;
+	private static PrintStream stdInPrintStream;
+	private static Thread thread;
+	private static boolean suppressStackTrace;
 	
-	public void start(Runnable runnable) {
+	public static synchronized void start(Runnable runnable) {
+		if (thread != null) {
+			throw new RuntimeException("IOTester Runner was already started. It must be terminated before starting again.");
+		}
 		outStream.reset();
 		try {
 			stdInInputStream = new PipedInputStream();
@@ -63,7 +68,7 @@ public class Runner {
 		thread.start();
 	}
 
-	public IOBlock nextBlock() {
+	public static IOBlock nextBlock() {
 		try {
 			IOBlock block = queue.poll(3, TimeUnit.SECONDS);
 			if (block == null) {
@@ -77,17 +82,17 @@ public class Runner {
 		}
 	}
 	
-	public void in(Object line) {
+	public static void in(Object line) {
 		originalStdOut.println("«" + line + "»");
 		stdInPrintStream.println(line);
 		stdInPrintStream.flush();
 	}
 	
-	public void terminate(boolean suppressStackTrace) {
+	public static synchronized void terminate(boolean suppressStackTrace) {
 		if (thread == null) {
 			return;
 		}
-		this.suppressStackTrace = suppressStackTrace;
+		Runner.suppressStackTrace = suppressStackTrace;
 		if (thread.isAlive()) {
 			thread.interrupt();
 		}
@@ -97,11 +102,11 @@ public class Runner {
 			e.printStackTrace();
 		} finally {
 			cleanUp();
-			this.suppressStackTrace = false;
+			Runner.suppressStackTrace = false;
 		}
 	}
 
-	private String flushOutput() {
+	private static String flushOutput() {
 		stdOutPrintStream.flush();
 		String output = new String(outStream.toByteArray(),
 				StandardCharsets.UTF_8);
@@ -109,11 +114,12 @@ public class Runner {
 		return output;
 	}
 
-	private void markInput() {
+	private static void markInput() {
 		queue.offer(new IOBlock(flushOutput(), BlockEndType.INPUT));
 	}
 
-	private void cleanUp() {
+	private static void cleanUp() {
+		queue.clear();
 		stdOutPrintStream = null;
 		closeSilently(stdInInputStream);
 		stdInInputStream = null;
@@ -135,7 +141,7 @@ public class Runner {
 		}
 	}
 
-	private class TappedInputStream extends FilterInputStream {
+	private static class TappedInputStream extends FilterInputStream {
 
 		public TappedInputStream(InputStream in) {
 			super(in);
