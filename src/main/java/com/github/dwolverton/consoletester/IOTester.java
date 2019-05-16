@@ -14,11 +14,15 @@ import com.github.dwolverton.consoletester.match.Match;
 import com.github.dwolverton.consoletester.match.MatchInfo;
 import com.github.dwolverton.consoletester.runner.BlockEndType;
 import com.github.dwolverton.consoletester.runner.IOBlock;
+import com.github.dwolverton.consoletester.runner.Runnables;
 import com.github.dwolverton.consoletester.runner.Runner;
 
 public class IOTester {
 	
 	private static final Pattern LINE_SEPARATOR_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
+	static {
+		Runner.init(); // Tap into System.in as soon as possible.
+	}
 	
 	private Set<Match> disallowed = new HashSet<>();
 	
@@ -30,7 +34,7 @@ public class IOTester {
 	 * @param mainClass a class that has a public static void main method to run.
 	 */
 	public void start(Class<?> mainClass) {
-		start(Runnables.fromMainClass(mainClass));
+		start(Runnables.fromMainClassWithTempClassLoader(mainClass));
 	}
 	
 	/**

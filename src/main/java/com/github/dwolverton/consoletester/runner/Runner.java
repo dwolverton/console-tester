@@ -15,10 +15,20 @@ import java.util.concurrent.TimeUnit;
 
 public class Runner {
 	
+	private static final int HANG_DETECTION_SECONDS = 3;
+	
+	/** Cannot be instantiated. */
 	private Runner() {}
 
 	private static PrintStream originalStdOut = System.out;
 	private static InputStream originalStdIn = System.in;
+	
+	// Before any other code has a chance to store System.in in a variable
+	// such as a static Scanner, switch to a proxy that be able to tap into.
+	private static ProxyInputStream stdInProxy = new ProxyInputStream(originalStdIn);
+	static {
+		System.setIn(stdInProxy);
+	}
 
 	private static BlockingQueue<IOBlock> queue = new LinkedBlockingQueue<>();
 
@@ -29,6 +39,14 @@ public class Runner {
 	private static PrintStream stdInPrintStream;
 	private static Thread thread;
 	private static boolean suppressStackTrace;
+	
+	/**
+	 * A dummy method just to make sure that the above static initialization runs.
+	 * Java will run that code as soon as this class is used. Calling this will
+	 * "use" the class, which needs to be triggered as early as possible in the test
+	 * run.
+	 */
+	public static void init() {}
 	
 	public static synchronized void start(Runnable runnable) {
 		if (thread != null) {
@@ -42,8 +60,7 @@ public class Runner {
 
 			stdOutPrintStream = new PrintStream(new TeeOutputStream(outStream, originalStdOut), true, "UTF-8");
 			System.setOut(stdOutPrintStream);
-			System.setIn(new TappedInputStream(stdInInputStream));
-
+			stdInProxy.setInputStream(new TappedInputStream(stdInInputStream));
 		} catch (IOException e) {
 			cleanUp();
 			throw new RuntimeException(e);
@@ -70,7 +87,7 @@ public class Runner {
 
 	public static IOBlock nextBlock() {
 		try {
-			IOBlock block = queue.poll(3, TimeUnit.SECONDS);
+			IOBlock block = queue.poll(HANG_DETECTION_SECONDS, TimeUnit.SECONDS);
 			if (block == null) {
 				return new IOBlock(flushOutput(), BlockEndType.HANG);
 			} else {
@@ -129,7 +146,7 @@ public class Runner {
 		stdInPrintStream = null;
 		thread = null;
 		System.setOut(originalStdOut);
-		System.setIn(originalStdIn);
+		stdInProxy.setInputStream(originalStdIn);
 	}
 
 	private static void closeSilently(Closeable closeable) {
