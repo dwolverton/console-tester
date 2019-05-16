@@ -39,6 +39,15 @@ public class IOTester {
 	
 	/**
 	 * Start a console program to test.
+	 * @param mainClass a class that has a public static void main method to run.
+	 *        provide the package & name, such as "com.example.MySweetProgram".
+	 */
+	public void start(String mainClass) {
+		start(Runnables.fromMainClassWithTempClassLoader(mainClass));
+	}
+	
+	/**
+	 * Start a console program to test.
 	 * @param main a main method to run. For example,
 	 *        <code>io.start(MyProgram::main)</code>
 	 */
