@@ -189,5 +189,65 @@ class MatchTest {
 		});
 		io.end();
 	}
+	
+	@Test
+	void testLineWith(IOTester io) {
+		io.start(() -> {
+			System.out.println("Word Alpha");
+			System.out.println("Word Beta");
+			System.out.println("Word Gamma");
+		});
+		assertEquals("Alpha", io.out(lineWith("Alpha")).get());
+		assertFails("Expected console output in a single line to contain: <Beta> and to contain: <Gamma> but the program ended.", () -> {
+			io.out(lineWith(all("Beta", "Gamma")));
+		});
+		io.end();
+	}
+	
+	@Test
+	void testLineWith2(IOTester io) {
+		io.start(() -> {
+			System.out.println("One Alpha");
+			System.out.println("Two Beta");
+			System.out.println("One Two Alpha");
+		});
+		assertEquals("One Two Alpha", io.out(lineWith(all("Two", "Alpha"))).getLine());
+		io.end();
+	}
+	
+	@Test
+	void testNotLineWith2ForContrast(IOTester io) {
+		io.start(() -> {
+			System.out.println("One Alpha");
+			System.out.println("Two Beta");
+			System.out.println("One Two Alpha");
+		});
+		assertEquals("One Alpha" + System.lineSeparator() + "Two Beta", io.out(all("Two", "Alpha")).getLine());
+		io.end();
+	}
+	
+	@Test
+	void testLineWithButNot(IOTester io) {
+		io.start(() -> {
+			System.out.println("One Alpha");
+			System.out.println("One Beta");
+			System.out.println("One Gamma");
+		});
+		assertEquals("One Beta", io.out(lineWithButNot("One", "Alpha")).getLine());
+		io.end();
+	}
+	
+	@Test
+	void testLineWithButNotErrorMessage(IOTester io) {
+		io.start(() -> {
+			System.out.println("One Alpha");
+			System.out.println("One Beta");
+			System.out.println("One Gamma");
+		});
+		assertFails("Expected console output in a single line to contain: <Beta> and not to contain: <One> but the program ended.", () -> {
+			io.out(lineWithButNot("Beta", "One"));
+		});
+		io.end();
+	}
 
 }

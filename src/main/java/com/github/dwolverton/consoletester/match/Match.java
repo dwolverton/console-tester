@@ -1,6 +1,7 @@
 package com.github.dwolverton.consoletester.match;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -84,21 +85,26 @@ public interface Match {
 	}
 	
 	/**
-	 * Return a Match that looks for a line that is a exactly the value provided.
-	 * The value must be the entire line from start to end. Case is ignored.
-	 * @param value a string to match, or if not a string it will be converted to a string.
+	 * Return a Match that looks for a line that matches the given Match.
+	 * Essentially matches of the given matcher than span multiple lines do not match.
+	 * @param match match does not need to be a Match instance. If it is not, it
+	 *        will be converted with {@link Match#of}.
 	 */
-	static Match exactLine(Object value) {
-		return new LineMatch(String.valueOf(value), true);
+	static Match lineWith(Object match) {
+		return new LineMatch(Match.of(match), null);
 	}
 	
 	/**
-	 * Return a Match that looks for a line that is a exactly the value provided.
-	 * The value must be the entire line from start to end. Case must match exactly.
-	 * @param value a string to match, or if not a string it will be converted to a string.
+	 * Return a Match that looks for a line that matches the given Match BUT does not
+	 * match the second match.
+	 * Essentially matches of the given matcher than span multiple lines do not match.
+	 * @param match must match in line. Does not need to be a Match instance. If it is not,
+	 *        it will be converted with {@link Match#of}.
+	 * @param notMatch must not also match in the same line. Does not need to be a Match
+	 *        instance. If it is not, it will be converted with {@link Match#of}.
 	 */
-	static Match exactLineExactCase(Object value) {
-		return new LineMatch(String.valueOf(value), false);
+	static Match lineWithButNot(Object match, Object notMatch) {
+		return new LineMatch(Match.of(match), Match.of(notMatch));
 	}
 	
 	/**
@@ -119,6 +125,16 @@ public interface Match {
 	}
 	
 	/**
+	 * Return a Match that will match the first of the given Matches that is found.
+	 * @param matches matches do not need to be Match instances. If any are not, they
+	 *        will be converted with {@link Match#of}.
+	 */
+	static Match any(Collection<?> matches) {
+		Match[] matches2 = matches.stream().map(Match::of).toArray(Match[]::new);
+		return new AnyMatch(matches2);
+	}
+	
+	/**
 	 * Return a Match that will match only if it finds all of the given matches.
 	 */
 	static Match all(Match... matches) {
@@ -132,6 +148,16 @@ public interface Match {
 	 */
 	static Match all(Object... matches) {
 		Match[] matches2 = Arrays.stream(matches).map(Match::of).toArray(Match[]::new);
+		return new AllMatch(matches2);
+	}
+	
+	/**
+	 * Return a Match that will match only if it finds all of the given matches.
+	 * @param matches matches do not need to be Match instances. If any are not, they
+	 *        will be converted with {@link Match#of}.
+	 */
+	static Match all(Collection<?> matches) {
+		Match[] matches2 = matches.stream().map(Match::of).toArray(Match[]::new);
 		return new AllMatch(matches2);
 	}
 	

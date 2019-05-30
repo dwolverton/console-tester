@@ -376,9 +376,9 @@ class IOTester2Test {
 			System.out.println("Word Three");
 		});
 		
-		io.lineOut("Word One");
-		io.lineOut(all("Word", "Two"));
-		io.lineOut(all("Word", "Three"));
+		io.out(lineWith("Word One"));
+		io.out(lineWith(all("Word", "Two")));
+		io.out(lineWith(all("Word", "Three")));
 		io.end();
 	}
 	
@@ -390,7 +390,7 @@ class IOTester2Test {
 			System.out.println("Word Three");
 		});
 		
-		io.lineOut(all("Three", "Word"));
+		io.out(lineWith(all("Three", "Word")));
 		io.end();
 	}
 	
@@ -401,8 +401,8 @@ class IOTester2Test {
 			System.out.println("Word Two");
 		});
 		
-		assertFails("Expected console output line to contain: <One> and to contain: <Two> but the program ended.", () -> {
-			io.lineOut(all("One", "Two"));
+		assertFails("Expected console output in a single line to contain: <One> and to contain: <Two> but the program ended.", () -> {
+			io.out(lineWith(all("One", "Two")));
 		});
 		io.end();
 	}

@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.github.dwolverton.consoletester.match.Found;
@@ -19,7 +17,6 @@ import com.github.dwolverton.consoletester.runner.Runner;
 
 public class IOTester {
 	
-	private static final Pattern LINE_SEPARATOR_PATTERN = Pattern.compile("\r\n|[\n\r\u2028\u2029\u0085]");
 	static {
 		Runner.init(); // Tap into System.in as soon as possible.
 	}
@@ -100,29 +97,6 @@ public class IOTester {
 	 */
 	public Found out(Object match) throws AssertionError {
 		return out(Match.of(match));
-	}
-	
-	/**
-	 * Expect to find the given match in the output. The given match must all be
-	 * found in the same line. This will most likely apply to an {@link Match#all} match.
-	 * @return information about the match that was found
-	 * @throws AssertionError if the match was not found in the output.
-	 */
-	public Found lineOut(Match match) throws AssertionError {
-		return findNextLineInBlock(match);
-	}
-	
-	/**
-	 * Expect to find the given match in the output. The given match must all be
-	 * found in the same line. This will most likely apply to an {@link Match#all} match.
-	 * @param match this value will be matched using exact whole word matching ignoring case.
-	 *        To customize this use the overloaded method {@link #out(Match)} with a specific
-	 *        {@link Match}.
-	 * @return information about the match that was found
-	 * @throws AssertionError if the match was not found in the output.
-	 */
-	public Found lineOut(Object match) throws AssertionError {
-		return lineOut(Match.of(match));
 	}
 	
 	/**
@@ -433,32 +407,6 @@ public class IOTester {
 			outputOffset = info.getEnd();
 			return new Found(block.getOutput(), info);
 		}
-	}
-	
-	/**
-	 * @return never null
-	 * @throws AssertionError if no match found
-	 */
-	private Found findNextLineInBlock(Match matcher) throws AssertionError {
-		Matcher m = LINE_SEPARATOR_PATTERN.matcher(block.getOutput());
-		int lineStart = outputOffset;
-		while (m.find(lineStart)) {
-			String line = block.getOutput().substring(lineStart, m.start());
-			MatchInfo infoInLine = matcher.match(line, 0).orElse(null);
-			if (infoInLine != null) {
-				if (isDisallowedBefore(infoInLine.getEnd() + lineStart)) {
-					return fail("Expected console output line " + matcher.getExpectedMessage() + " but found output " + Match.any(disallowed.stream().toArray(Match[]::new)).getExpectedMessage());
-				}
-				
-				MatchInfo info = new MatchInfo(infoInLine.getMatch(),
-						infoInLine.getStart() + lineStart,
-						infoInLine.getEnd() + lineStart);
-				outputOffset = info.getEnd();
-				return new Found(block.getOutput(), info);
-			}
-			lineStart = m.end();
-		}
-		return fail("Expected console output line " + matcher.getExpectedMessage() + " but " + block.getEndType().getActualMessage() + ".");
 	}
 	
 	private boolean isDisallowedBefore(int position) {
