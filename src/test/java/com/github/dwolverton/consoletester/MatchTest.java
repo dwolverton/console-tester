@@ -1,13 +1,21 @@
 package com.github.dwolverton.consoletester;
 
 import static com.github.dwolverton.consoletester.TestUtil.assertFails;
-import static com.github.dwolverton.consoletester.match.Match.*;
+import static com.github.dwolverton.consoletester.match.Match.all;
+import static com.github.dwolverton.consoletester.match.Match.any;
+import static com.github.dwolverton.consoletester.match.Match.exact;
+import static com.github.dwolverton.consoletester.match.Match.exactExactCase;
+import static com.github.dwolverton.consoletester.match.Match.exactWholeWord;
+import static com.github.dwolverton.consoletester.match.Match.exactWholeWordExactCase;
+import static com.github.dwolverton.consoletester.match.Match.lineWith;
+import static com.github.dwolverton.consoletester.match.Match.lineWithButNot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.Scanner;
+
 import org.junit.jupiter.api.Test;
 
-import com.github.dwolverton.consoletester.IOTester;
 import com.github.dwolverton.consoletester.junit5.GradingTest;
 
 @GradingTest
@@ -223,6 +231,21 @@ class MatchTest {
 			System.out.println("One Two Alpha");
 		});
 		assertEquals("One Alpha" + System.lineSeparator() + "Two Beta", io.out(all("Two", "Alpha")).getLine());
+		io.end();
+	}
+	
+	@Test
+	void testLineWithNoEndLine(IOTester io) {
+		io.start(() -> {
+			Scanner scnr = new Scanner(System.in);
+			System.out.print("Word Alpha");
+			String x = scnr.next();
+			System.out.print("Word " + x);
+			scnr.close();
+		});
+		assertEquals("Alpha", io.out(lineWith("Alpha")).get());
+		io.in("Beta");
+		assertEquals("Word Beta", io.out(lineWith("Beta")).getLine());
 		io.end();
 	}
 	

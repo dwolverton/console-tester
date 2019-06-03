@@ -26,14 +26,24 @@ public class LineMatch implements Match {
 			String line = s.substring(lineStart, m.start());
 			MatchInfo infoInLine = matchLine(line);
 			if (infoInLine != null) {
-				MatchInfo info = new MatchInfo(infoInLine.getMatch(),
-						infoInLine.getStart() + lineStart,
-						infoInLine.getEnd() + lineStart);
-				return Optional.of(info);
+				return Optional.of(offsetMatch(infoInLine, lineStart));
 			}
 			lineStart = m.end();
 		}
+		
+		String line = s.substring(lineStart);
+		MatchInfo infoInLine = matchLine(line);
+		if (infoInLine != null) {
+			return Optional.of(offsetMatch(infoInLine, lineStart));
+		}
+		
 		return Optional.empty();
+	}
+	
+	private MatchInfo offsetMatch(MatchInfo infoInLine, int lineStart) {
+		return new MatchInfo(infoInLine.getMatch(),
+				infoInLine.getStart() + lineStart,
+				infoInLine.getEnd() + lineStart);
 	}
 	
 	private MatchInfo matchLine(String line) {
